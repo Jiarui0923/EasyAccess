@@ -1,0 +1,7 @@
+__pycache__
+test.ipynb
+credentials.json
+iolib.json
+example.pdb
+*.zip
+*.fasta
