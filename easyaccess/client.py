@@ -34,7 +34,7 @@ class EasyAccess(object):
             _entries_data = self._get_entry_inbatch(entry, io=True)
             _entry_dict = {}
             for _entry_name, _entry_config in _entries_data.items():
-                _entry_dict[_entry_name] = RemoteAlgorithm(self, entry, self._io_lib, mode=self._mode, progressor=self._progressor, entry_config=_entry_config)
+                _entry_dict[_entry_name] = RemoteAlgorithm(self, _entry_name, self._io_lib, mode=self._mode, progressor=self._progressor, entry_config=_entry_config)
             return _entry_dict
         else: raise IndexError
     def __repr__(self):
