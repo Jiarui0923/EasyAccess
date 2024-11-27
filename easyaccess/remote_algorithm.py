@@ -5,6 +5,7 @@ from .parameter import meta_types
 from . import docflow as doc
 
 import time
+import asyncio
   
 class RemoteAlgorithm(object):
     
@@ -36,6 +37,8 @@ class RemoteAlgorithm(object):
         self.references = _algo_info.get('references')
         self.raw_inputs = _algo_info.get('inputs')
         self.raw_outputs = _algo_info.get('outputs')
+        self._task = None
+        self._task_id = None
         
     def _load_io_info(self, io_name):
         if io_name not in self._io_lib:
@@ -75,6 +78,9 @@ class RemoteAlgorithm(object):
         )
         return _doc.markdown
     
+    def cancel(self):
+        self._cancel()
+    
     def __call__(self, **kwargs):
         if   self._mode.lower() in ('http', 'https', ): return self.run_http(**kwargs)
         elif self._mode.lower() in ('socket', 'websocket', ): return self.run_websocket(**kwargs)
@@ -90,18 +96,31 @@ class RemoteAlgorithm(object):
                 _params[arg_name] = arg_regular.iotype(kwargs[arg_name])
         return _params
     
+    def _cancel(self, _task_progress_bar=None):
+        if self._task_id is None: return
+        if self._client._cancel_task(self._task_id):
+            if _task_progress_bar is not None: _task_progress_bar.done(self.name + ' cancelled')
+        else:
+            if _task_progress_bar is not None: _task_progress_bar.error(self.name + ' failed to be cancelled')
+        self._task_id = None
+    
     def run_http(self, **kwargs):
         _params = self._build_params(**kwargs)
-        _task_id = self._client._submit_task(entry_name = self._entry_name, params = _params)
         if self._progressor is not None:
             _task_progress_bar = self._progressor(f'Task {self.name} Submitted', timer=True)
         else: _task_progress_bar = None
-        time.sleep(0.1)
-        _response = self._client._get_task_return(_task_id)
-        while 'success' not in _response:
-            if _task_progress_bar is not None: _task_progress_bar.update(self.name + ' ' + _response.get('status'))
+        try:
+            _task_id = self._client._submit_task(entry_name = self._entry_name, params = _params)
+            self._task_id = _task_id
             time.sleep(0.1)
             _response = self._client._get_task_return(_task_id)
+            while 'success' not in _response:
+                if _task_progress_bar is not None: _task_progress_bar.update(self.name + ' ' + _response.get('status'))
+                time.sleep(0.1)
+                _response = self._client._get_task_return(_task_id)
+        except KeyboardInterrupt:
+            self._cancel(_task_progress_bar)
+            raise KeyboardInterrupt
         if not _response['success']:
             if _task_progress_bar is not None: _task_progress_bar.error(self.name + ' ' +_response.get('output'))
             raise RuntimeError(_response.get('output'))
@@ -112,15 +131,22 @@ class RemoteAlgorithm(object):
     def run_websocket(self, **kwargs):
         _params = self._build_params(**kwargs)
         
-        _task_socket = self._client._run_task_in_websocket(entry_name = self._entry_name, params = _params)
         if self._progressor is not None:
             _task_progress_bar = self._progressor(f'Task {self.name} Submitted', timer=True)
         else: _task_progress_bar = None
-        _response = _task_socket.query('get')
-        while _task_socket.connected:
-            if _task_progress_bar is not None: _task_progress_bar.update(self.name + ' ' + _response.get('status'))
+        try:
+            _task_id = self._client._submit_task(entry_name = self._entry_name, params = _params)
+            self._task_id = _task_id
+            _task_socket = self._client._get_task_in_websocket(task_id = self._task_id)
             time.sleep(0.1)
             _response = _task_socket.query('get')
+            while _task_socket.connected:
+                if _task_progress_bar is not None: _task_progress_bar.update(self.name + ' ' + _response.get('status'))
+                time.sleep(0.1)
+                _response = _task_socket.query('get')
+        except KeyboardInterrupt:
+            self._cancel(_task_progress_bar)
+            raise KeyboardInterrupt
         if not _response['success']:
             if _task_progress_bar is not None: _task_progress_bar.error(self.name + ' ' +_response.get('output'))
             raise RuntimeError(_response.get('output'))

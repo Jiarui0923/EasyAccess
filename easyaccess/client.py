@@ -109,9 +109,10 @@ class EasyAccess(object):
                              method='GET')
         return data
     
-    def _run_task_in_websocket(self, entry_name, params):
-        data = self._request(entry=f'./entries/{entry_name}',
-                             method='POST',
-                             data=params)
-        task_id = data.get('task_id')
+    def _get_task_in_websocket(self, task_id):
         return self._websocket(entry=f'./tasks/{task_id}/ws')
+    
+    def _cancel_task(self, task_id):
+        data = self._request(entry=f'./tasks/{task_id}/cancel',
+                             method='POST')
+        return data.get('success')
