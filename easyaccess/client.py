@@ -1,15 +1,17 @@
 from .remote_algorithm import RemoteAlgorithm
 from .iotypemodel.iotype_model import IOType
 from . import docflow as doc
+from .websocket import EasyAccessWebSocket
+from .progress import LoadProgress
 
 from urllib.parse import urljoin
 import requests
 import json
 
 
-class EasyAPIClient(object):
+class EasyAccess(object):
     
-    def __init__(self, host, api_id, api_key):
+    def __init__(self, host, api_id, api_key, mode='websocket', progressor=LoadProgress):
         self.host = host
         self.api_id = api_id
         self.api_key = api_key
@@ -17,12 +19,14 @@ class EasyAPIClient(object):
         self._entries_pair = self._get_entries(name=True)
         self._entries = [_entry[0] for _entry in self._entries_pair]
         self._io_lib = {_io_id:IOType(**_io_type) for _io_id, _io_type in self._get_ios(full=True).items()}
+        self._mode = mode
+        self._progressor = progressor
         
     def __len__(self): return len(self._entries)
     def __getitem__(self, entry):
         _entries = self._entries
         if entry not in _entries: raise ModuleNotFoundError(f'Algorithm {entry} does not exists.')
-        return RemoteAlgorithm(self, entry, self._io_lib)
+        return RemoteAlgorithm(self, entry, self._io_lib, mode=self._mode, progressor=self._progressor)
     def __repr__(self):
         return f'{self._server_info.get("server")}:{str(self._entries)}'
     def _repr_markdown_(self):
@@ -49,6 +53,12 @@ class EasyAPIClient(object):
         else: raise RuntimeError('Method Not Allowed')
         if response.status_code != 200: raise ConnectionError(f'{response.content.decode()}')
         return json.loads(response.content)
+    
+    def _websocket(self, entry=''):
+        _full_url = urljoin(self.host, entry)
+        _full_url = _full_url.replace('http', 'ws', 1)
+        headers = {'easyapi-id': self.api_id, 'easyapi-key': self.api_key}
+        return EasyAccessWebSocket(host=_full_url, header=headers)
     
     def _get_server_info(self):
         data = self._request(entry='./',
@@ -98,3 +108,10 @@ class EasyAPIClient(object):
         data = self._request(entry=f'./tasks/{task_id}',
                              method='GET')
         return data
+    
+    def _run_task_in_websocket(self, entry_name, params):
+        data = self._request(entry=f'./entries/{entry_name}',
+                             method='POST',
+                             data=params)
+        task_id = data.get('task_id')
+        return self._websocket(entry=f'./tasks/{task_id}/ws')

@@ -1,1 +1,2 @@
-from .client import EasyAPIClient as EasyAccess
+from .client import EasyAccess
+from .progress import LoadProgress

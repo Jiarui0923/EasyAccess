@@ -8,7 +8,7 @@ import time
   
 class RemoteAlgorithm(object):
     
-    def __init__(self, client, entry_name, io_lib={}):
+    def __init__(self, client, entry_name, io_lib={}, mode='websocket', progressor=LoadProgress):
         
         self._client = client
         self._entry_name = entry_name
@@ -18,6 +18,8 @@ class RemoteAlgorithm(object):
         self._load_in_out_params()
         self._doc = self._build_doc()
         self.__doc__ = self._doc
+        self._mode = mode
+        self._progressor = progressor
         
     def __repr__(self): return self._doc
     def _repr_markdown_(self): return self._doc
@@ -72,8 +74,13 @@ class RemoteAlgorithm(object):
             doc.Sequence(self.references),
         )
         return _doc.markdown
-        
+    
     def __call__(self, **kwargs):
+        if   self._mode.lower() in ('http', 'https', ): return self.run_http(**kwargs)
+        elif self._mode.lower() in ('socket', 'websocket', ): return self.run_websocket(**kwargs)
+        else: raise ValueError(f'{self._mode} not support')
+    
+    def _build_params(self, **kwargs):
         _params = {}
         for arg_name, arg_regular in self.inputs.items():
             if arg_name not in kwargs:
@@ -81,17 +88,42 @@ class RemoteAlgorithm(object):
                 else: raise RuntimeError(f'{arg_name} Required.')
             else:
                 _params[arg_name] = arg_regular.iotype(kwargs[arg_name])
+        return _params
+    
+    def run_http(self, **kwargs):
+        _params = self._build_params(**kwargs)
         _task_id = self._client._submit_task(entry_name = self._entry_name, params = _params)
-        _task_progress_bar = LoadProgress(f'Task {self.name} Submitted', timer=True)
+        if self._progressor is not None:
+            _task_progress_bar = self._progressor(f'Task {self.name} Submitted', timer=True)
+        else: _task_progress_bar = None
         time.sleep(0.1)
         _response = self._client._get_task_return(_task_id)
         while 'success' not in _response:
-            _task_progress_bar.update(self.name + ' ' + _response.get('status'))
+            if _task_progress_bar is not None: _task_progress_bar.update(self.name + ' ' + _response.get('status'))
             time.sleep(0.1)
             _response = self._client._get_task_return(_task_id)
         if not _response['success']:
-            _task_progress_bar.error(self.name + ' ' +_response.get('output'))
+            if _task_progress_bar is not None: _task_progress_bar.error(self.name + ' ' +_response.get('output'))
             raise RuntimeError(_response.get('output'))
         else:
-            _task_progress_bar.done(f'Task {self.name} Finished.')
+            if _task_progress_bar is not None: _task_progress_bar.done(f'Task {self.name} Finished.')
+            return _response.get('output')
+        
+    def run_websocket(self, **kwargs):
+        _params = self._build_params(**kwargs)
+        
+        _task_socket = self._client._run_task_in_websocket(entry_name = self._entry_name, params = _params)
+        if self._progressor is not None:
+            _task_progress_bar = self._progressor(f'Task {self.name} Submitted', timer=True)
+        else: _task_progress_bar = None
+        _response = _task_socket.query('get')
+        while _task_socket.connected:
+            if _task_progress_bar is not None: _task_progress_bar.update(self.name + ' ' + _response.get('status'))
+            time.sleep(0.1)
+            _response = _task_socket.query('get')
+        if not _response['success']:
+            if _task_progress_bar is not None: _task_progress_bar.error(self.name + ' ' +_response.get('output'))
+            raise RuntimeError(_response.get('output'))
+        else:
+            if _task_progress_bar is not None: _task_progress_bar.done(f'Task {self.name} Finished.')
             return _response.get('output')
