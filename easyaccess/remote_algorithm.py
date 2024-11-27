@@ -8,13 +8,16 @@ import time
   
 class RemoteAlgorithm(object):
     
-    def __init__(self, client, entry_name, io_lib={}, mode='websocket', progressor=LoadProgress):
+    def __init__(self, client, entry_name, io_lib={}, mode='websocket', progressor=LoadProgress, entry_config=None):
         
         self._client = client
         self._entry_name = entry_name
         self._io_lib = io_lib
         
-        self._load_algo_info()
+        if entry_config is None:
+            _algo_info = self._client._get_entry(self._entry_name, io=True)
+        else: _algo_info = entry_config
+        self._load_algo_info(_algo_info)
         self._load_in_out_params()
         self._doc = self._build_doc()
         self.__doc__ = self._doc
@@ -27,8 +30,7 @@ class RemoteAlgorithm(object):
     @property
     def source(self): return self._client._server_info.get("server")
         
-    def _load_algo_info(self):
-        _algo_info = self._client._get_entry(self._entry_name, io=True)
+    def _load_algo_info(self, _algo_info):
         self.id = _algo_info.get('id')
         self.name = _algo_info.get('name')
         self.description = _algo_info.get('description')

@@ -25,8 +25,18 @@ class EasyAccess(object):
     def __len__(self): return len(self._entries)
     def __getitem__(self, entry):
         _entries = self._entries
-        if entry not in _entries: raise ModuleNotFoundError(f'Algorithm {entry} does not exists.')
-        return RemoteAlgorithm(self, entry, self._io_lib, mode=self._mode, progressor=self._progressor)
+        if isinstance(entry, str):
+            if entry not in _entries: raise ModuleNotFoundError(f'Algorithm {entry} does not exists.')
+            return RemoteAlgorithm(self, entry, self._io_lib, mode=self._mode, progressor=self._progressor)
+        elif isinstance(entry, (list, tuple)):
+            for _entry in entry:
+                if _entry not in _entries: raise ModuleNotFoundError(f'Algorithm {entry} does not exists.')
+            _entries_data = self._get_entry_inbatch(entry, io=True)
+            _entry_dict = {}
+            for _entry_name, _entry_config in _entries_data.items():
+                _entry_dict[_entry_name] = RemoteAlgorithm(self, entry, self._io_lib, mode=self._mode, progressor=self._progressor, entry_config=_entry_config)
+            return _entry_dict
+        else: raise IndexError
     def __repr__(self):
         return f'{self._server_info.get("server")}:{str(self._entries)}'
     def _repr_markdown_(self):
@@ -73,6 +83,12 @@ class EasyAccess(object):
     
     def _get_entry(self, entry_name, io=False):
         data = self._request(entry=f'./entries/{entry_name}',
+                             method='GET',
+                             data={'io':io})
+        return data
+    
+    def _get_entry_inbatch(self, entry_names=[], io=False):
+        data = self._request(entry=f'./entries/'+','.join(entry_names),
                              method='GET',
                              data={'io':io})
         return data
