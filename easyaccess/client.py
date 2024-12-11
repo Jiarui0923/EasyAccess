@@ -53,13 +53,13 @@ class EasyAccess(object):
     @property
     def algorithms(self): return self._entries
     
-    def _request(self, entry='', method='GET', data=None):
+    def _request(self, entry='', method='GET', data=None, timeout=None):
         headers = {'easyapi-id': self.api_id, 'easyapi-key': self.api_key}
         _full_url = urljoin(self.host, entry)
         if method.upper() == 'GET':
-            response = requests.get(_full_url, params=data, headers=headers)
+            response = requests.get(_full_url, params=data, headers=headers, timeout=timeout)
         elif method.upper() == 'POST':
-            response = requests.post(_full_url, data=json.dumps(data), headers=headers)
+            response = requests.post(_full_url, data=json.dumps(data), headers=headers, timeout=timeout)
         else: raise RuntimeError('Method Not Allowed')
         if response.status_code != 200: raise ConnectionError(f'{response.content.decode()}')
         return json.loads(response.content)
@@ -72,7 +72,8 @@ class EasyAccess(object):
     
     def _get_server_info(self):
         data = self._request(entry='./',
-                             method='GET')
+                             method='GET',
+                             timeout=0.25)
         return data
     
     def _get_entries(self, name=False):
