@@ -12,3 +12,5 @@ Institution: Computer Science Department, Tulane University
 
 from .client import EasyAccess
 from .progress import LoadProgress
+
+__version__ = '1.0.0'
