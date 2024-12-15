@@ -3,7 +3,7 @@ test.ipynb
 credentials.json
 iolib.json
 example.pdb
-*.zip
 *.fasta
 build
 *.egg-info
+readme.pip.md

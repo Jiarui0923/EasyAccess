@@ -13,7 +13,7 @@ Institution: Computer Science Department, Tulane University
 from urllib.parse import urljoin
 import requests
 import json
-from . import docflow as doc
+import docflow as doc
 from .remote_algorithm import RemoteAlgorithm
 from .iotypemodel.iotype_model import IOType
 from .websocket import EasyAccessWebSocket

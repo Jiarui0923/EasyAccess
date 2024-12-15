@@ -11,10 +11,10 @@ Institution: Computer Science Department, Tulane University
 """
 
 import time
+import docflow as doc
 from .iotypemodel.iotype_model import IOType
 from .progress import LoadProgress
 from .parameter import Parameter, meta_types
-from . import docflow as doc
 
 
 class RemoteAlgorithm:

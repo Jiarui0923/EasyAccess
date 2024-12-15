@@ -1,5 +1,6 @@
 """Package installer."""
 from setuptools import find_packages, setup
+import os
 
 LONG_DESCRIPTION = '''
 EasyAccess is a Python package designed to seamlessly connect to and interact with EasyAPI. This package provides a user-friendly interface to access EasyAPI's algorithms as if they were local Python functions, simplifying remote computation tasks. It also includes features for automatic organization and visualization of documentation, making it easier to understand and use available functionalities.
@@ -10,8 +11,10 @@ For detailed usage instructions, installation steps, and API references, please 
 
 If there is any issue, please put up with an issue or contact Jiarui Li (jli78@tulane.edu)
 '''
-VERSION = '1.0.0'
+VERSION = '1.0.1'
 NAME = 'EasyAccess'
+
+dependency_path = os.path.join(os.path.dirname(__file__), "dependencies", "docflow-1.0.0.zip")
 
 setup(
     name=NAME,
@@ -24,7 +27,11 @@ setup(
     url='https://git.tulane.edu/apl/easyaccess',
     # license='MIT',
     install_requires=[
-        'requests', 'websocket-client', 'pandas', 'markdown'
+        'requests',
+        'websocket-client',
+        'pandas',
+        'markdown',
+        f'docflow @ file://{dependency_path}'
     ],
     classifiers=[
         'Intended Audience :: Developers',
