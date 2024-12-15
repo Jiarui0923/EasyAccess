@@ -7,5 +7,4 @@ from .table     import Table
 from .image     import EmbeddedImage
 from .stamp     import DateTimeStamp, UUIDStamp
 from .expander  import Expander
-from .magic     import Magic
 from .catalog   import Catalog

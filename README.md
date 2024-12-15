@@ -9,15 +9,6 @@ This project aims to build a Python API that is used to connect to EasyAPI. This
 
 If there is any issue, please put up with an issue or contact Jiarui Li (jli78@tulane.edu)
 
-## TO-DO
-- [x] Protocols
-    - [x] HTTP/HTTPS
-    - [x] WebSocket
-- [x] Basic Framework
-  - [x] Request Algorithm Information
-  - [x] Batch Request
-  - [x] Submit Work
-  - [x] Fetch Work
-  - [x] Cancel Work
+
 ## Packages
 markdown, websocket-client, requests, pandas

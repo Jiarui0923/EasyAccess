@@ -3,12 +3,12 @@ import base64
 import io
 import os
 
-import matplotlib.pyplot
 from .document import Document
 
 class EmbeddedImage(Document):
     
     def __init__(self, image):
+        import matplotlib.pyplot
         if isinstance(image, matplotlib.figure.Figure):
             img_stream = io.BytesIO()
             image.savefig(img_stream, format='jpg', bbox_inches='tight')
