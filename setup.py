@@ -11,7 +11,7 @@ For detailed usage instructions, installation steps, and API references, please 
 
 If there is any issue, please put up with an issue or contact Jiarui Li (jli78@tulane.edu)
 '''
-VERSION = '1.0.1'
+VERSION = '1.0.2'
 NAME = 'EasyAccess'
 
 dependency_path = os.path.join(os.path.dirname(__file__), "dependencies", "docflow-1.0.0.zip")

@@ -83,6 +83,9 @@ class EasyAccess:
                 raise ModuleNotFoundError(f'Algorithm {entry} does not exist.')
             return RemoteAlgorithm(self, entry, self._io_lib, mode=self._mode, progressor=self._progressor)
         if isinstance(entry, (list, tuple)):
+            if len(entry) == 1:
+                _algo = RemoteAlgorithm(self, entry[0], self._io_lib, mode=self._mode, progressor=self._progressor)
+                return {_algo.name: _algo}
             for _entry in entry:
                 if _entry not in self._entries:
                     raise ModuleNotFoundError(f'Algorithm {_entry} does not exist.')
