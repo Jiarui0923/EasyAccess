@@ -11,10 +11,8 @@ For detailed usage instructions, installation steps, and API references, please 
 
 If there is any issue, please put up with an issue or contact Jiarui Li (jli78@tulane.edu)
 '''
-VERSION = '1.0.2'
+VERSION = '1.0.3'
 NAME = 'EasyAccess'
-
-dependency_path = os.path.join(os.path.dirname(__file__), "dependencies", "docflow-1.0.0.zip")
 
 setup(
     name=NAME,
@@ -25,18 +23,18 @@ setup(
     author='Jiarui Li, Marco K. Carbullido, Jai Bansal, Samuel J. Landry, Ramgopal R. Mettu',
     author_email=('jli78@tulane.edu'),
     url='https://git.tulane.edu/apl/easyaccess',
-    # license='MIT',
+    license='GPLv3',
     install_requires=[
         'requests',
         'websocket-client',
         'pandas',
         'markdown',
-        f'docflow @ file://{dependency_path}'
+        'docflow @ https://jellyroll.cs.tulane.edu/pypi/packages/docflow/docflow-1.0.0.zip'
     ],
     classifiers=[
         'Intended Audience :: Developers',
         'Intended Audience :: Science/Research',
-        # 'License :: OSI Approved :: Apache 2.0 License',
+        'License :: OSI Approved :: GPLv3 License',
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.12',
         'Topic :: Software Development :: Libraries :: Python Modules'
