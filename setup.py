@@ -22,14 +22,14 @@ setup(
     long_description_content_type="text/markdown",
     author='Jiarui Li, Marco K. Carbullido, Jai Bansal, Samuel J. Landry, Ramgopal R. Mettu',
     author_email=('jli78@tulane.edu'),
-    url='https://git.tulane.edu/apl/easyaccess',
+    url='https://github.com/Jiarui0923/EasyAccess',
     license='GPLv3',
     install_requires=[
         'requests',
         'websocket-client',
         'pandas',
         'markdown',
-        'docflow @ https://jellyroll.cs.tulane.edu/pypi/packages/docflow/docflow-1.0.0.zip'
+        'docflow @ git+https://github.com/Jiarui0923/DocFlow/'
     ],
     classifiers=[
         'Intended Audience :: Developers',

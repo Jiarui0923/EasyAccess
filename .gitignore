@@ -1,9 +1,3 @@
 __pycache__
-test.ipynb
 credentials.json
 iolib.json
-example.pdb
-*.fasta
-build
-*.egg-info
-readme.pip.md

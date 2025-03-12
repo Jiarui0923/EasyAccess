@@ -2,3 +2,4 @@ requests==2.32.3
 websocket-client==1.8.0
 pandas==2.2.2
 markdown==3.6
+docflow @ git+https://github.com/Jiarui0923/DocFlow/
