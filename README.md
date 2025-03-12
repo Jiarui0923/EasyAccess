@@ -1,8 +1,8 @@
-<img src="images/tulane_long.png" width="128px"><img src="images/icon_long.png" width="128px"> 
+<img src="images/tulane_long.png" width="128px"><img src="images/icon_apl.png" width="256px"><img src="images/icon_long.png" width="128px"> 
 
 # EasyAccess
 `UPDATED: 2025/03/11`
-This is part of Antigen Processing Likelihood (APL) Suite Project.
+This is part of [Antigen Processing Likelihood (APL) Suite](https://github.com/Jiarui0923/APL) Project.
 
 ## Introduction
 EasyAccess is a Python package designed to seamlessly connect to and interact with EasyAPI. This package provides a user-friendly interface to access EasyAPI's algorithms as if they were local Python functions, simplifying remote computation tasks. It also includes features for automatic organization and visualization of documentation, making it easier to understand and use available functionalities.
