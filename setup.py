@@ -29,7 +29,7 @@ setup(
         'websocket-client',
         'pandas',
         'markdown',
-        'docflow @ git+https://github.com/Jiarui0923/DocFlow/'
+        'docflow @ git+https://github.com/Jiarui0923/DocFlow@1.0.0'
     ],
     classifiers=[
         'Intended Audience :: Developers',
